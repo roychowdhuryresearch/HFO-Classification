@@ -181,7 +181,7 @@ nohup python inference.py -c config/config_10min_inference_90min.ini  > logs/log
 - In the termimal run the following command
 
 ```bash
-nohup python inference.py -c config/config_10min_inference_90min.ini  > logs/log_10min_inference_90min &
+nohup python inference.py -c config/config_90min_inference_90min.ini  > logs/log_10min_inference_90min &
 ```
 
 - Specify **inference_res** (same as **res_dir** in previous step) in config/config_preprocessing.ini
