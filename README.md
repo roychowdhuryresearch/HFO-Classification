@@ -217,3 +217,6 @@ nohup python inference_reverse.py -c config/config_90min_inference_90min.ini > l
 ```bash
 nohup python inference_reverse.py -c config/config_90min_inference_10min.ini > logs/log_90min_inference_10min &
 ```
+
+## Contract:
+You can email zyp5511@g.ucla.edu if you have any question :)
