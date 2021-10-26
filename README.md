@@ -2,7 +2,7 @@
 
 Source Code of paper
 
-_Refining epileptogenic high-frequency oscillations using deep learning: A novel reverse engineering approach_
+[Refining epileptogenic high-frequency oscillations using deep learning: A novel reverse engineering approach](https://www.biorxiv.org/content/10.1101/2021.08.31.458385v1)
 
 Authors: Yipeng Zhang, Qiujing Lu, Tonmoy Monsoor, Shaun A. Hussain, Joe X Qiao, Noriko Salamon, Aria Fallah, Myung Shin Sim, Eishi Asano, Raman Sankar, Richard J. Staba, Anatol Bragin, Jerome Engel Jr., William Speier, Vwani Roychowdhury, and \*Hiroki Nariai
 
