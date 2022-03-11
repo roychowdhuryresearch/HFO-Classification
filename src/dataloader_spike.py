@@ -17,11 +17,6 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 from patient_info import seizure_free_patient_names, patient_resected
 
-torch.manual_seed(0)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-np.random.seed(0)
-random.seed(0)
 
 class HFODataset(Dataset):
     """Custom Dataset class for the Chest X-Ray Dataset.

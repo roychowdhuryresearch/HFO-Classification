@@ -1,4 +1,5 @@
 # PyTorch imports
+from cmath import inf
 import random
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -13,12 +14,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import torch.utils.data as data
 import os 
-from skimage.transform import resize
-torch.manual_seed(0)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-np.random.seed(0)
-random.seed(0)
 
 class HFODataset(Dataset):
 
@@ -26,24 +21,24 @@ class HFODataset(Dataset):
 
         spectrum_folder = os.path.join(data_dir, patient_name)
         
-        loaded = np.load(os.path.join(spectrum_folder,"data.npz"))
+        loaded = np.load(os.path.join(spectrum_folder,"data.npz"), allow_pickle=True)
         self.spectrum = np.squeeze(loaded["spectrum"])
         label_fn = os.path.join(spectrum_folder,"label.npz")
         try:
             if os.path.exists(label_fn):
                 self.label = np.load(label_fn)["labels"].astype(int)
             else:
-                self.label = np.zeros(len(self.spectrum))
+                self.label = np.zeros(len(self.spectrum)).astype(int)
                 print("here",label_fn)
         except:
-            self.label = np.zeros(len(self.spectrum))
+            self.label = np.zeros(len(self.spectrum)).astype(int)
             print("here1",label_fn)
+        self.label = self.label.reshape(-1, 1)
         self.info = np.squeeze(loaded["info"])
-        self.start_end = np.squeeze(loaded["start_end"])
-        
+        self.start_end = np.squeeze(loaded["start_end"]).reshape(-1, 2).astype(int)
         self.intensity = loaded["intensity"]
         self.waveform = loaded["waveform"]
-
+        print(self.spectrum.shape, self.label.shape, self.start_end.shape, self.intensity.shape, self.waveform.shape, self.info.shape)
         if remove_artifacts:
             self.__remove_artifacts()
 
@@ -79,11 +74,10 @@ class HFODataset(Dataset):
         """
         spectrum = torch.from_numpy(self.spectrum[ind])
         label = torch.from_numpy(np.array(self.label[ind]))
-        #spectrum[215:,:] = 0
         info = self.info[ind]
-        start_end = np.array(self.start_end[ind])
-        waveform =  torch.from_numpy(np.rot90(self.waveform[ind]).copy())
-        intensity =  torch.from_numpy(self.intensity[ind])
+        start_end = torch.from_numpy(self.start_end[ind])
+        waveform = torch.from_numpy(np.rot90(self.waveform[ind]).copy())
+        intensity = torch.from_numpy(self.intensity[ind])
         return spectrum, waveform, intensity, label, info, start_end
 
 

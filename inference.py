@@ -21,20 +21,17 @@ from src.meter import InferenceStats
 def create_testing_loader(data_folder, patient_name):
     # once all single json datasets are created you can concat them into a single one:
     hfo_dataset = HFODataset(data_dir=data_folder, patient_name=patient_name)
-    data_loader = DataLoader(hfo_dataset, batch_size=512, num_workers=1, pin_memory=True)
+    data_loader = DataLoader(hfo_dataset, batch_size=64, num_workers=1, pin_memory=True)
     return data_loader
 
 def run_model(model_a, model_s, iterator, computing_device):
     stats = InferenceStats()
     for i, (spectrum, waveform, intensity, _ ,info, start_end) in enumerate(iterator, 0):
         channel_name = np.array(info)
-        #spectrum_norm = normalize_img(spectrum)
-        spectrum_norm = spectrum
+        spectrum_norm = normalize_img(spectrum)
         inputs_a = torch.stack([spectrum_norm,spectrum_norm,spectrum_norm], dim=1, out=None).to(computing_device).float()  
 
-        #s_spectrum_norm = normalize_img(torch.log(spectrum))
-        s_spectrum_norm = spectrum
-        inputs_s = torch.stack([s_spectrum_norm,waveform,intensity], dim=1, out=None).to(computing_device).float()
+        inputs_s = torch.stack([spectrum_norm,waveform,normalize_img(intensity)], dim=1, out=None).to(computing_device).float()
 
         with torch.no_grad():       
             outputs_a = model_a(inputs_a).detach().cpu().numpy()
@@ -54,7 +51,7 @@ def inference( data_dir, res_folder, model_folder, computing_device):
     
     model_artifact = NeuralCNN(num_classes=2).to(computing_device)
     model_spike = NeuralCNN(num_classes=2).to(computing_device)
-    
+    print(path_artifacts, path_spike)
     model_artifact.load_state_dict(torch.load(path_artifacts)["state_dict"])
     model_spike.load_state_dict(torch.load(path_spike)["state_dict"])
     

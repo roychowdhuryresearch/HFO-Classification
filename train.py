@@ -28,7 +28,7 @@ def validate(val_loader, model, criterion, computing_device, fn = None):
     model_a = model["artifact"]
     model_a.eval()
     model_s.eval()
-    for mb_count, (spectrum, waveform, intensity, label, info, start_end) in enumerate(val_loader, 0):
+    for _, (spectrum, waveform, intensity, label, info, start_end) in enumerate(val_loader, 0):
   
         with torch.no_grad():       
             a_, s_ , train_s = create_sa_labels(spectrum, waveform, intensity,label, info, start_end, computing_device)
@@ -95,9 +95,7 @@ def validate(val_loader, model, criterion, computing_device, fn = None):
 
 def create_sa_labels(spectrum, waveform, intensity, label, channel_name, start_end, computing_device):
     channel_name = np.array(channel_name)
-    #spectrum_norm = normalize_img(torch.log(spectrum + 1e-8))
-    #spectrum_norm = normalize_img(spectrum)
-    spectrum_norm = spectrum
+    spectrum_norm = normalize_img(spectrum)
     inputs_a = torch.stack([spectrum_norm,spectrum_norm,spectrum_norm], dim=1, out=None).to(computing_device).float()  
     label = label.squeeze().float()
      
@@ -126,13 +124,11 @@ def create_sa_labels(spectrum, waveform, intensity, label, channel_name, start_e
     if not train_spike_bool:
         return  a_, s_ ,False
    
-    #print("select_index", select_index, select_index.shape)
     s_spectrum = spectrum[select_index]
-    #s_spectrum_norm = normalize_img(torch.log(s_spectrum))
-    s_spectrum_norm = spectrum[select_index]
-    inputs_s = torch.stack([s_spectrum_norm,waveform[select_index],intensity[select_index]], dim=1, out=None).to(computing_device).float()
+    s_spectrum_norm = normalize_img(s_spectrum)
+    intensity_norm = normalize_img(intensity[select_index])
+    inputs_s = torch.stack([s_spectrum_norm,waveform[select_index],intensity_norm], dim=1, out=None).to(computing_device).float()
     label_s= label_spike.to(computing_device)
-    #print(inputs_s.shape)
     s_ = {
         "inputs": expand_dim(inputs_s, 4),
         "spectrum":spectrum[select_index],
@@ -260,8 +256,7 @@ def pipeline(args, test_set_index=-1, k_fold= -1):
 
     data_dir = args.data_dir
     res_dir = os.path.join(args.work_dir, args.res_dir)        
-    if not os.path.exists(res_dir):
-        os.mkdir(res_dir)
+    os.makedirs(res_dir, exist_ok=True)
     num_epochs_s = args.num_epochs_s       # Number of full passes through the dataset
     num_epochs_a = args.num_epochs_a 
     batch_size = args.batch_size         # Number of samples in each minibatch
@@ -343,12 +338,6 @@ def all_patient(args):
 if __name__ == "__main__":
     args = arg_parse(sys.argv[1:])
     print(args)
-    
-    torch.manual_seed(args.seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-    np.random.seed(args.seed)
-    random.seed(args.seed)
 
     if args.all_patient:
         all_patient(args)

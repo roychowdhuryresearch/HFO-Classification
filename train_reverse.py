@@ -78,20 +78,12 @@ def create_sa_labels(
 ):
     channel_name = np.array(channel_name)
     label = label.squeeze().float()
-
-    # print("select_index", select_index, select_index.shape)
-    s_image = image
-    # s_image_norm = normalize_img(torch.log(s_image + 1e-8))
-    # s_image_norm = torch.log(s_image)
-    s_image_norm = s_image
     inputs_s = (
-        torch.stack([s_image_norm, waveform, intensity], dim=1, out=None)
+        torch.stack([normalize_img(image), waveform, normalize_img(intensity)], dim=1, out=None)
         .to(computing_device)
         .float()
     )
-    # inputs_s = torch.stack([intensity[select_index],intensity[select_index],intensity[select_index]], dim=1, out=None).to(computing_device).float()
     label_s = label.to(computing_device)
-    # print(inputs_s.shape)
     s_ = {
         "inputs": expand_dim(inputs_s, 4),
         "spectrum": image,
@@ -289,12 +281,6 @@ def pipeline(args, test_patient_name):
 if __name__ == "__main__":
     args = arg_parse90(sys.argv[1:])
     print(args)
-
-    torch.manual_seed(args.seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-    np.random.seed(args.seed)
-    random.seed(args.seed)
     clean_folder(os.path.join(args.work_dir, args.res_dir))
     if args.all_patient:
         print("all")

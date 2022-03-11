@@ -153,8 +153,8 @@ class InferenceStats:
     def export_cvs(self, fn):
         outputs_s = np.squeeze(np.concatenate(self.outputs_s))
         outputs_a = np.squeeze(np.concatenate(self.outputs_a))
-        channel_names = np.concatenate(self.channel_names)
-        start_end = np.concatenate(self.start_end)
+        channel_names = np.concatenate(self.channel_names, 0)
+        start_end = np.concatenate(self.start_end, 0)
         prediction_a = (outputs_a > 0.5).astype(int)
         prediction_s = (outputs_s > 0.5).astype(int)
         artifacts_index = np.where(prediction_a == 0)[0]
@@ -167,6 +167,10 @@ class ClassificationStats(InferenceStats):
     def __init__(self):
         super(InferenceStats, self).__init__()
         self.outputs_e = []
+        self.outputs_a = []
+        self.outputs_s = []
+        self.channel_names =[]
+        self.start_end = []   
     def add(self, outputs_a, outputs_s, outputs_e ,channel_names ,start_end):
         self.outputs_s.append(outputs_s)
         self.outputs_a.append(outputs_a)
@@ -180,6 +184,7 @@ class ClassificationStats(InferenceStats):
         outputs_e = np.squeeze(np.concatenate(self.outputs_e))
         channel_names = np.concatenate(self.channel_names)
         start_end = np.concatenate(self.start_end)
+        print(outputs_s, outputs_a, outputs_e)
         prediction_a = (outputs_a > 0.5).astype(int)
         prediction_s = (outputs_s > 0.5).astype(int)
         prediction_e = (outputs_e > 0.5).astype(int)

@@ -73,7 +73,7 @@ def create_sa_labels(spectrum, waveform, intensity, label, channel_name, start_e
     label = label.squeeze().float()
     s_ ={}    
     #s_spectrum_norm = torch.log(spectrum)
-    inputs_s = torch.stack([spectrum,waveform,intensity], dim=1, out=None).to(computing_device).float()
+    inputs_s = torch.stack([normalize_img(spectrum),waveform,normalize_img(intensity)], dim=1, out=None).to(computing_device).float()
     label_s= label.to(computing_device)
     #print(inputs_s.shape)
     s_ = {

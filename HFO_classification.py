@@ -28,19 +28,16 @@ def run_model(model_a, model_s, model_e ,iterator, computing_device):
     stats = ClassificationStats()
     for i, (spectrum, waveform, intensity, _ ,info, start_end) in enumerate(iterator, 0):
         channel_name = np.array(info)
-        #spectrum_norm = normalize_img(spectrum)
-        spectrum_norm = spectrum
+        spectrum_norm = normalize_img(spectrum)
+        intensity_norm = normalize_img(intensity)
         inputs_a = torch.stack([spectrum_norm,spectrum_norm,spectrum_norm], dim=1, out=None).to(computing_device).float()  
+        inputs_s = torch.stack([spectrum_norm,waveform,intensity_norm], dim=1, out=None).to(computing_device).float()
 
-        #s_spectrum_norm = normalize_img(torch.log(spectrum))
-        s_spectrum_norm = spectrum
-        inputs_s = torch.stack([s_spectrum_norm,waveform,intensity], dim=1, out=None).to(computing_device).float()
-
-        with torch.no_grad():       
+        with torch.no_grad(): 
             outputs_a = model_a(inputs_a).detach().cpu().numpy()
             outputs_s = model_s(inputs_s).detach().cpu().numpy()
             outputs_e = model_e(inputs_s).detach().cpu().numpy()
-            stats.add(outputs_a, outputs_s, channel_name, start_end, outputs_e)        
+            stats.add(outputs_a, outputs_s, outputs_e ,channel_name, start_end)        
     return stats
 
 
@@ -51,9 +48,9 @@ def inference( data_dir, res_folder, model_folder, computing_device):
     for fn in os.listdir(model_folder):
         if fn.endswith("artifacts.pth"):
             path_artifacts = os.path.join(model_folder, fn)
-        if fn.endswith("spike.pth"):
+        if fn.endswith("spikes.pth"):
             path_spike = os.path.join(model_folder, fn)
-        if fn.endswith("eHFO.pth"):
+        if fn.endswith("eHFOs.pth"):
             path_eHFO = os.path.join(model_folder, fn)
     
     model_artifact = NeuralCNN(num_classes=2).to(computing_device)

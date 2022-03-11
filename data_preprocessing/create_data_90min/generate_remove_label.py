@@ -54,7 +54,7 @@ def get_remove_label(input_dir, annotation_fn, inference_res90min):
     for pn in os.listdir(input_dir):
         df_p = dfs[pn]
         patient_folder = os.path.join(input_dir, pn) 
-        loaded = np.load(os.path.join(patient_folder,"data.npz"))
+        loaded = np.load(os.path.join(patient_folder,"data.npz"), allow_pickle=True)
         channel_names = loaded["info"]
         remove_labels = parse_patient_label(df_p,np.squeeze(channel_names), "Removed")
         soz_labels = parse_patient_label(df_p,np.squeeze(channel_names), "SOZ")
