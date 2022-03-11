@@ -43,8 +43,8 @@ data_classification
 
 ```
 artifacts.pth
-spike.pth
-eHFO.pth
+spikes.pth
+eHFOs.pth
 ```
 
 4. modify the fields in config/config_inference_HFO.ini
