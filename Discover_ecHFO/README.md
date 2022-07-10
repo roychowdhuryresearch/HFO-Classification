@@ -1,6 +1,7 @@
 ## Characterizing physiological high-frequency oscillations using deep learning
 
 please follow the data preprocessing steps in Discover_eHFO or end2end/DataPreprocessing sections. 
+The checkpoints will be released in [end2end](../end2end) 
 
 For label assignment for each HFO:
 * 1 is Behaviour 
