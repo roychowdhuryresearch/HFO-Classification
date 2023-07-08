@@ -1,0 +1,11 @@
+scipy
+pandas
+tqdm
+numpy
+torch
+scikit-image
+openpyxl
+HFODetector
+pyqtgraph
+p_tqdm
+torchvision
