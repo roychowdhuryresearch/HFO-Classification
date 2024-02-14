@@ -68,16 +68,13 @@ v_RMS                       = sqrt(v_RMS);
 
 clear v_Temp
 
+% load('rms.mat', 'v_RMS')
 str_Message     = 'RMS Calculation  - OK';
-
 disp(str_Message)
             
 %% Baseline detection
 
-str_Message         = 'Baseline detection - Step 2 ....';
-
-p_HFOWaitFigure(st_WaitOutput,...
-                'LogsList',str_Message)            
+str_Message         = 'Baseline detection - Step 2 ....';    
             
 s_EpochSamples      = round(s_BaseSeg * s_SampleFrec);
 s_FreqSeg           = numel(v_Freqs(1):5:v_Freqs(2));
@@ -90,7 +87,7 @@ s_StDevCycles       = 3;
 s_WEMax             = zeros(100,1); % Simulation of maximum baseline based in
                                     % the calculus of uniform random
                                     % values
-
+rand('twister', 0)
 for kk = 1:100 
 
     v_Segment       = rand(s_EpochSamples,1);
@@ -127,12 +124,14 @@ for kk = 1:numel(v_InIndex)
     m_ProbEnerg 	= mean(m_WCoef.^2,2)/sum(mean(m_WCoef.^2,2));
     s_WESection     = -sum(m_ProbEnerg.*log(m_ProbEnerg));
     
-    if s_WESection < s_BaseThr*s_WEMax;
+    if s_WESection < s_BaseThr*s_WEMax
         v_BaselineWindow(v_InIndex(kk):v_EnIndex(kk))   = 1;
     end
 end
 
 clear m_ProbEnerg m_WCoef
+
+% load('bw.mat', 'v_BaselineWindow')
 
 str_Message     = 'Baseline detection  - OK';
 disp(str_Message)
@@ -140,12 +139,14 @@ disp(str_Message)
 %% Threshold calculation
    
 str_Message     = 'Thresholding Calculation - Step 3 ....';
-p_HFOWaitFigure(st_WaitOutput,...
-    'LogsList',str_Message)
  
 s_WindSamples	= (s_BaseMin/60) * numel(v_Signal);
 s_MinWin        = s_MinWin * s_SampleFrec;
-if sum(v_BaselineWindow) >= s_WindSamples
+%if sum(v_BaselineWindow) >= s_WindSamples
+sum_tmp = sum(v_BaselineWindow);
+
+%sum_tmp = 10000;
+if sum_tmp >= s_WindSamples
     v_Threshold     = f_PosBaseline();
 else
     v_Threshold     = f_NegBaseline();
@@ -186,6 +187,7 @@ s_MinGap	= s_MinGap * s_SampleFrec;
 clear v_WindThres v_WindJumps v_WindJumUp v_WindJumDown
 clear v_DistSelect v_WindSelect
 
+
 while 1
     
     if isempty(v_WindIni)
@@ -221,7 +223,7 @@ m_HFOEvents     = [v_WindIni v_WindEnd];
 
 clear v_WindSelect v_WindIni v_WindEnd v_WinDist
 
-str_Message     = 'Envent Selection - OK';
+str_Message     = 'Event Selection - OK';
 disp(str_Message)
 
 str_Message = 'HFO Detection - OK';
@@ -280,9 +282,9 @@ disp(str_Message)
         for jj = 1:numel(v_IdxIni) 
             v_Section   = sort(v_RMS(v_IdxIni(jj):v_IdxEnd(jj)),'ascend');
             s_ThresLast = max(v_Section);
-            
+            cnt = 0
             while 1
-                
+                cnt = cnt + 1
                 if sum(abs(v_Section)) == 0
                     break
                 end

@@ -1,9 +1,11 @@
 % figure out path setting
 % Set HFO parameters
-run('HFO_parameters_detector')
+run('HFO_parameters_detector_ste')
 st_FilePath = struct;
 str_TempFolder  = './Temp/new_data/'; %% folder for saving data
-input_data_dir =  'Test_EEG_data/'
+input_data_dir =  'EEG_10min_data/'
+input_data_dir =  'zurich_bipolar/'
+input_data_dir =  'rodent/'
 data_folder = dir(input_data_dir)
 data_folder(ismember( {data_folder.name}, {'.', '..'})) = [];
 
@@ -12,7 +14,6 @@ st_FilePath_name_list = {}
 
 
 for n = 1 : numel(data_folder)
-    
     new_files = dir(fullfile(input_data_dir, data_folder(n).name, '*.edf'))
     new_files(ismember( {new_files.name}, {'.', '..'})) = [];
     % for same patient with multiple edfs
@@ -23,7 +24,6 @@ for n = 1 : numel(data_folder)
     
 end
 %%
-
 tmp_size = size(st_FilePath_sub_dir_list)
 number_patient = tmp_size(1)
 for n = 1 : number_patient
@@ -56,7 +56,7 @@ for n = 1 : number_patient
     %save('AR_channel_name.mat', 'channel_name');
     % 
     % % %%%%%%%%%%%%%%%%%%%%%################################
-    if s_algo_state == "generate_data" | s_algo_state == "all"
+    if s_algo_state == "generate_data" || s_algo_state == "all"
         v_ListIdx  = 1:num_channel;
         st_Data = f_ChannelLoad_modified(st_ChInfo, st_Data, v_ListIdx, str_TempFolder)
     end
@@ -67,7 +67,7 @@ for n = 1 : number_patient
 %                                 st_HFOControl.v_ChannelIdx);
 %  
     % %%%%%%%%%%%%%%%%%%%%%################################
-    if s_algo_state == "Detector" | s_algo_state == "all"
+    if s_algo_state == "Detector" || s_algo_state == "all"
         all_events = cell(num_channel,1);
         if ~isempty(which(rhfe_path))
             delete(rhfe_path)
@@ -189,7 +189,7 @@ function f_Ini(s_Indicator,pst_Path)
             dbstop if error
             clc;clear;close all
             %     warning off all
-            st_Path.path    = which('run_HFO_detector');
+            st_Path.path    = which('run_STE_detector');
             st_Path.path    = fileparts(st_Path.path);
             st_Path.pathold = cd(st_Path.path);
             

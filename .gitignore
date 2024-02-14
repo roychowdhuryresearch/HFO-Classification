@@ -3,3 +3,8 @@ eHFO_classification/result/
 __pycache__
 */__pycache__
 */.ipynb_checkpoints
+EEG_10min_data*
+rodent*
+zurich*
+Temp*
+pick_mat.py
