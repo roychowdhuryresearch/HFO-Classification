@@ -1,5 +1,3 @@
-eHFO_classification/result/
-eHFO_classification/result/
 __pycache__
 */__pycache__
 */.ipynb_checkpoints
@@ -8,3 +6,4 @@ rodent*
 zurich*
 Temp*
 pick_mat.py
+*.csv
