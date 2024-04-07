@@ -25,13 +25,15 @@ def generate_feature_from_df(df, data, channels_unique, sampling_rate, feature_p
     starts = df["starts"].values.astype(int)
     ends = df["ends"].values.astype(int)
     channel_names = df["channel_names"].values
-    hfo_waveforms = extract_waveforms(data, starts, ends, channel_names, channels_unique, int(feature_param["time_window_ms"]*2/1000*sampling_rate))
+    hfo_waveforms = extract_waveforms(data, starts, ends, channel_names, channels_unique, int(feature_param["time_window_ms"]/1000*sampling_rate))
     sp_rate = [sampling_rate]*len(starts)
     win_size = [feature_param["image_size"]]*len(starts)
     ps_MinFreqHz = [feature_param["freq_min_hz"]]*len(starts)
     ps_MaxFreqHz = [feature_param["freq_max_hz"]]*len(starts)
     resize = [True]*len(starts)
-    ret = p_map(hfo_feature, starts, ends, channel_names, hfo_waveforms, sp_rate, win_size, ps_MinFreqHz, ps_MaxFreqHz, resize, num_cpus=n_jobs)
+    #ret = p_map(hfo_feature, starts, ends, channel_names, hfo_waveforms, sp_rate, win_size, ps_MinFreqHz, ps_MaxFreqHz, resize, num_cpus=n_jobs)
+    with get_context("spawn").Pool(n_jobs) as pool:
+        ret = pool.starmap(hfo_feature, zip(starts, ends, channel_names, hfo_waveforms, sp_rate, win_size, ps_MinFreqHz, ps_MaxFreqHz, resize))
     starts, ends, channel_names, time_frequncy_img, amplitude_coding_plot = np.zeros(len(ret)), np.zeros(len(ret)), np.empty(len(ret), dtype= object), np.zeros((len(ret), feature_param["image_size"], feature_param["image_size"])), np.zeros((len(ret), feature_param["image_size"], feature_param["image_size"]))
     for i in range(len(ret)):
         channel_names[i], starts[i], ends[i], time_frequncy_img[i], amplitude_coding_plot[i] = ret[i]

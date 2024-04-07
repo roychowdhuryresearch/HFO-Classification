@@ -61,15 +61,18 @@ def pruning_pipeline(model_folder, args, iterative_steps, fintune_freq, device):
     model_input_w = preprocessing.crop_index_w
     model_input_h = preprocessing.crop_index_h
     in_channels = model.in_channels
-    example_inputs =  torch.randn(1, in_channels, model_input_h, model_input_w).to(device)
-    model, pruner, base_macs, base_nparams = get_pruner(model, iterative_steps, example_inputs)
+    print(f"Model Input Size: {model_input_h}x{model_input_w}, In Channels: {in_channels}")
+    example_inputs = torch.randn(1, in_channels, model_input_h, model_input_w).to(device)
+    base_macs, base_nparams = tp.utils.count_ops_and_params(model, example_inputs)
+    print(f"Base MACs: {clever_format([base_macs, base_nparams], '%.3f')[0]}")
+    model, pruner, _, _ = get_pruner(model, iterative_steps, example_inputs)
     args["save_checkpoint"] = False
     args["res_dir"] = res_dir
     trainer = Trainer(args, verbose=False)
     dfs = []
     for i in range(iterative_steps):
         pruner.step()
-        if i % fintune_freq == 0:
+        if (i+1) % fintune_freq == 0:
             macs, nparams = tp.utils.count_ops_and_params(model, example_inputs)
             macs_str, _ = clever_format([macs, nparams], "%.3f")
             model_trained, acc = trainer.onefold_crossvalidation(n_fold, fold, model)
@@ -93,6 +96,8 @@ if __name__ == "__main__":
     args["num_epochs"] = 5   # 5 epochs for each pruning step
     fintune_freq = 500   # fintune the model every 500 pruning steps
     
-    args["data_dir"] = "data_training/artifact_data"
-    model_folder = "result/artifact_data_win285_freq10_300_shift50/ckpt/fold_0"
+    args["data_dir"] = "data_training/spike_data"
+    #args["data_dir"] = "data_training/artifact_data"
+    #model_folder = "result/artifact_data_win285_freq10_290_shift50/ckpt/fold_0"
+    model_folder = "result/spike_data_win285_freq10_290_shift50/ckpt/fold_0"
     pruning_pipeline(model_folder, args, iterative_steps, fintune_freq, device)
